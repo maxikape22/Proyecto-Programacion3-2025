@@ -1,4 +1,8 @@
 ﻿@page "/counter"
+@inject IJSRuntime js
+@using Microsoft.AspNetCore.Authorization
+@* agrego el atributo autorize para solo mostrar la pagina a los usuarios autorizados *@
+@attribute [Authorize(Roles="admin")]
 
 <PageTitle>Counter</PageTitle>
 
@@ -11,8 +15,18 @@
 @code {
     private int currentCount = 0;
 
-    private void IncrementCount()
+    private async Task IncrementCount()
     {
-        currentCount++;
+        var confirmado = await js.Confirmar($"desea incrementar?");
+        if (confirmado)
+        {
+            currentCount++;
+
+        } 
+
+        else
+        {
+            currentCount--;  
+        }
     }
 }

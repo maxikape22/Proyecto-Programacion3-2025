@@ -1,6 +1,13 @@
 ﻿<Router AppAssembly="@typeof(App).Assembly">
     <Found Context="routeData">
-        <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
+        @* //"" el AuthorizeRouteView me dice que va a mostrar si estoy autorizado y que sino estoy autorizado  *@
+        <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
+
+            <Authorizing>
+              <p> Autorizando... </p>
+            </Authorizing>
+        </AuthorizeRouteView>
+     
         <FocusOnNavigate RouteData="@routeData" Selector="h1" />
     </Found>
     <NotFound>

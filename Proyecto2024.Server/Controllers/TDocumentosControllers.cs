@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.EntityFrameworkCore;
 using Proyecto2024.BD.Data;
 using Proyecto2024.BD.Data.Entity;
@@ -11,13 +12,24 @@ namespace Proyecto2024.Server.Controllers
     public class TDocumentosControllers : ControllerBase
     {
         private readonly ITDocumentoRepositorio repositorio;
+        private readonly IOutputCacheStore outputCacheStore;
 
-        public TDocumentosControllers(ITDocumentoRepositorio repositorio)
+        //
+        //
+        //"" creo una constante para el tag del cache
+        private const string cacheKey = "tDocumentos";
+
+        //"" agrego la inyecccion del cache IOutputCacheStore 
+        public TDocumentosControllers(ITDocumentoRepositorio repositorio, IOutputCacheStore outputCacheStore)
         {
-            this.repositorio = repositorio;
-        }
 
+            this.repositorio = repositorio;
+            this.outputCacheStore = outputCacheStore;
+        }
+        
         [HttpGet]    //api/TDocumentos
+        //agrego la etuiqueta del cache , si esta activo no se usa el select
+        [OutputCache(Tags = [cacheKey])]
         public async Task<ActionResult<List<TDocumento>>> Get()
         {
             return await repositorio.Select();
@@ -29,6 +41,7 @@ namespace Proyecto2024.Server.Controllers
         /// <param name="id">Id del objeto</param>
         /// <returns></returns>
         [HttpGet("{id:int}")] //api/TDocumentos/2
+        [OutputCache(Tags = [cacheKey])]
         public async Task<ActionResult<TDocumento>> Get(int id)
         {
             TDocumento? pepe = await repositorio.SelectById(id);
@@ -40,6 +53,7 @@ namespace Proyecto2024.Server.Controllers
         }
 
         [HttpGet("GetByCod/{cod}")] //api/TDocumentos/GetByCod/DNI
+        [OutputCache(Tags = [cacheKey])]
         public async Task<ActionResult<TDocumento>> GetByCod(string cod)
         {
             TDocumento? pepe = await repositorio.SelectByCod(cod);
@@ -51,6 +65,7 @@ namespace Proyecto2024.Server.Controllers
         }
 
         [HttpGet("existe/{id:int}")] //api/TDocumentos/existe/2
+        [OutputCache(Tags = [cacheKey])]
         public async Task<ActionResult<bool>> Existe(int id)
         {
             return await repositorio.Existe(id);
@@ -61,7 +76,16 @@ namespace Proyecto2024.Server.Controllers
         {
             try
             {
-                return await repositorio.Insert(entidad);
+                //return await repositorio.Insert(entidad);
+                var id = await repositorio.Insert(entidad);
+                if (id == 0)
+                {
+                    return BadRequest("No se pudo insertar el tipo de documento");
+                }
+
+                //""borrar el cache de forma asincrona
+                await outputCacheStore.EvictByTagAsync(cacheKey, default);
+                return id;
             }
             catch (Exception err)
             {
@@ -84,6 +108,9 @@ namespace Proyecto2024.Server.Controllers
                 {
                     return BadRequest("No se pudo actualizar el tipo de documento");
                 }
+                //""borrar el cache de forma asincrona
+                await outputCacheStore.EvictByTagAsync(cacheKey, default);
+
                 return Ok();
 
             }
@@ -99,6 +126,9 @@ namespace Proyecto2024.Server.Controllers
             var resp = await repositorio.Delete(id);
             if (!resp)
             { return BadRequest("El tipo de documento no se pudo borrar"); }
+            
+            await outputCacheStore.EvictByTagAsync(cacheKey, default);
+
             return Ok();
         }
 

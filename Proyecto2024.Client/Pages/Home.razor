@@ -1,7 +1,26 @@
 ﻿@page "/"
 
 <PageTitle>Home</PageTitle>
+@* el AuthorizeView es un componente propio de microsoft  *@
+<AuthorizeView>
+    <Authorized>
+        <h3>Bienvenido, @context.User.Identity?.Name </h3>
+        <h3>Bienvenido, @context.User.Identity?.AuthenticationType </h3>
 
-<h1>Hello, world!</h1>
+        <h3>Bienvenido, usuario Autenticado </h3>
 
-Welcome to your new app.
+        @foreach (var item in context.User.Claims)
+        {
+            <tr>
+                <td>  @item.Value</td>
+            </tr>
+        }
+    </Authorized>
+    <NotAuthorized>
+        <h3>No autorizado, inicie sesión.</h3>
+    </NotAuthorized>
+</AuthorizeView>
+
+@* <h1>Hello, world!</h1>
+
+Welcome to your new app. *@
