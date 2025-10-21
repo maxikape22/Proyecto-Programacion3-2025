@@ -66,6 +66,7 @@ namespace Proyecto2024.Server.Controllers
         {
             var claims = new List<Claim>()
             {
+                new Claim(ClaimTypes.Name,userInfoDTO.Email),
                 new Claim(ClaimTypes.Email,userInfoDTO.Email),
                 new Claim("miValor","Lo que yo quiera")
             };
