@@ -12,6 +12,6 @@ namespace Proyecto2024.Shared.DTO
         [EmailAddress]
         public string Email { get; set; } = null!;
         public string Password { get; set; } = null!;
-        public string? Nombre { get; set; } = null;
+        //public string? Nombre { get; set; } = null;
     }
 }

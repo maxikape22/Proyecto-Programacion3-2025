@@ -4,7 +4,7 @@ using System.Security.Claims;
 
 namespace Proyecto2024.Client.Autorizacion
 {
-    public class ProveedorAutenticacion : AuthenticationStateProvider
+    public class ProveedorAutenticacionJwt : AuthenticationStateProvider
     {
         //la clase la ponemos como clase abstacta que nos permite sobreescribir
         //el metodo GetAuthenticationStateAsync() que pertenece a la clase heredada

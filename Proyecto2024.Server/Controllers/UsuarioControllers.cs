@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Proyecto2024.BD.Usuario;
 using Proyecto2024.Shared.DTO;
 using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
@@ -12,17 +11,17 @@ using System.IdentityModel.Tokens.Jwt;
 namespace Proyecto2024.Server.Controllers
 {
     [ApiController]
-    [Route("api/Usuarios")]
+    [Route("usuarios")]
     public class UsuarioControllers : ControllerBase
     {
 
-        public UserManager<MiUsuario> userManager { get; }
-        public SignInManager<MiUsuario> signInManager { get; }
+        public UserManager<IdentityUser> userManager { get; }
+        public SignInManager<IdentityUser> signInManager { get; }
         public IConfiguration configuration { get; }
         // el UserManager es una clase oservicio que me permite manejar los usuarios
         //SignInManager es una clase que maneja las firmas(claves) para para autorizacion y aut del usuario
-        public UsuarioControllers(UserManager<MiUsuario> userManager,
-                                 SignInManager<MiUsuario> signInManager,
+        public UsuarioControllers(UserManager<IdentityUser> userManager,
+                                 SignInManager<IdentityUser> signInManager,
                                  IConfiguration configuration)
         {
             this.userManager = userManager;
@@ -49,7 +48,7 @@ namespace Proyecto2024.Server.Controllers
         [HttpPost("registrar")]
         public async Task<ActionResult<UserTokenDTO>> RegistrarUsuario([FromBody] UserInfoDTO userInfoDTO)
         {
-            var usuario = new MiUsuario { UserName = userInfoDTO.Nombre, Email = userInfoDTO.Email };
+            var usuario = new IdentityUser { UserName = userInfoDTO.Email, Email = userInfoDTO.Email };
             var resultado = await userManager.CreateAsync(usuario, userInfoDTO.Password);
 
             if (resultado.Succeeded)
@@ -67,7 +66,6 @@ namespace Proyecto2024.Server.Controllers
         {
             var claims = new List<Claim>()
             {
-                new Claim(ClaimTypes.Name,userInfoDTO.Nombre!),
                 new Claim(ClaimTypes.Email,userInfoDTO.Email),
                 new Claim("miValor","Lo que yo quiera")
             };
